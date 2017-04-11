@@ -1,0 +1,29 @@
+{
+  "name": "topolis/contentimport",
+  "description": "Import content from various formats like rss into your bolt cms",
+  "type": "bolt-extension",
+  "keywords": [
+    "import",
+    "rss",
+    "atom"
+  ],
+  "require": {
+    "bolt/bolt": "^3.0",
+  },
+  "license": "GPL-3.0+",
+  "authors": [
+    {
+      "name": "ToBe",
+      "email": "tobe@topolis.de"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Topolis\\Bolt\\Extension\\ContentImport\\": "src/"
+    }
+  },
+  "extra": {
+    "bolt-class": "Topolis\\Bolt\\Extension\\ContentImport\\Extension",
+    "bolt-icon": "icon-marketplace.png"
+  }
+}
