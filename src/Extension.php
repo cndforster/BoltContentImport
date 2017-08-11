@@ -55,7 +55,7 @@ class Extension extends SimpleExtension {
 
         foreach($imports as $source => $interval){
             if(isset(self::$cronMap[$interval]) && self::$cronMap[$interval] == $name){
-                // $this->container[self::EXTID.'.importer']->import($source, $event->output);
+                $this->container[self::EXTID.'.importer']->import($source, $event->output);
                 $this->container[self::EXTID.'.importer']->purge($source, $event->output);
             }
         }
