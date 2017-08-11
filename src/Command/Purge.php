@@ -14,7 +14,7 @@ use Topolis\Bolt\Extension\ContentImport\Extension;
  * @author Kenny Koala
  * <kenny@dropbear.com.au>
  */
-class Import extends Command {
+class Purge extends Command {
 
     protected $app;
 
@@ -29,13 +29,13 @@ class Import extends Command {
 
     protected function configure() {
         $this
-            ->setName('contentimport:import')
-            ->setDescription('Import one or all content sources into Bolt')
+            ->setName('contentimport:purge')
+            ->setDescription('Purge selected content older than X days or above limit')
             ->addOption(
                 'source',
                 's',
                 InputArgument::OPTIONAL,
-                'Only import this source',
+                'Only purge this source',
                 false
             );
     }
@@ -44,6 +44,6 @@ class Import extends Command {
         $source = $input->getOption('source');
         $verbose = $input->getOption('verbose');
 
-        $this->app[Extension::EXTID.".importer"]->import($source, $output, $verbose);
+        $this->app[Extension::EXTID.".importer"]->purge($source, $output, $verbose);
     }
 }

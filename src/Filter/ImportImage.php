@@ -3,6 +3,7 @@
 namespace Topolis\Bolt\Extension\ContentImport\Filter;
 
 use Exception;
+use GuzzleHttp\Exception\ClientException;
 use Silex\Application;
 use Topolis\Bolt\Extension\ContentImport\IFilter;
 use Topolis\FunctionLibrary\Path;
@@ -30,9 +31,9 @@ class ImportImage implements IFilter {
         if(!$app["filesystem"]->has("files://".$filename)){
 
             $client = new \GuzzleHttp\Client();
-            $res = $client->request('GET', $url);
+            $res = $client->request('GET', $url, ['http_errors' => false]);
 
-            if($res->getStatusCode() != 200)
+            if(!$res || $res->getStatusCode() != 200)
                 return false;
 
             $app["filesystem"]->putStream("files://".$filename, $res->getBody());

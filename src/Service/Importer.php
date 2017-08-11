@@ -2,7 +2,9 @@
 namespace Topolis\Bolt\Extension\ContentImport\Service;
 use Bolt\Storage\Collection\Taxonomy;
 use Bolt\Storage\Entity\Content;
+use Bolt\Storage\Repository;
 use DateTime;
+use Doctrine\DBAL\Statement;
 use Exception;
 use Silex\Application;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -25,8 +27,10 @@ class Importer {
     /* @var Application $app */
     protected $app;
 
+    protected $baseNS = null;
+
     protected static $defaults = [
-        "tasks" => []
+        "imports" => []
     ];
 
     protected static $defaultField = [
@@ -39,6 +43,27 @@ class Importer {
     public function __construct($app, $config){
         $this->app = $app;
         $this->config = $config + self::$defaults;
+
+        $ns = explode("\\", __NAMESPACE__);
+        array_pop($ns);
+        $this->baseNS = implode("\\", $ns);
+    }
+
+    /**
+     * Return list of sources with cron intervals
+     * @return array
+     */
+    public function getCronTasks(){
+        $list = [];
+
+        foreach($this->config["imports"] as $key => $task) {
+            if(!isset($task["interval"]) || !$task["interval"])
+                continue;
+
+            $list[$key] = $task["interval"];
+        }
+
+        return $list;
     }
 
     /**
@@ -48,7 +73,7 @@ class Importer {
      */
     public function import($source = false, $output = false, $verbose = false){
 
-        foreach($this->config["tasks"] as $key => $task) {
+        foreach($this->config["imports"] as $key => $task) {
             if (!$source || $source == $key) {
 
                 $count = Collection::get($task, "count", 100);
@@ -81,6 +106,41 @@ class Importer {
                 }
 
                 $progress->finish();
+                $output->writeln("");
+            }
+        }
+
+        return;
+    }
+
+    /**
+     * @param string|bool $source
+     * @param OutputInterface|bool $output
+     * @param bool $verbose
+     */
+    public function purge($source = false, $output = false, $verbose = false){
+        foreach($this->config["purges"] as $key => $task) {
+            if (!$source || $source == $key) {
+                $output->write("Purging source ".$key." ");
+
+                $contenttype = Collection::get($task, "contenttypeslug", false);
+                $filters = Collection::get($task, "filters", []);
+                $keep = Collection::get($task, "keep", 0);
+
+                /* @var Repository $repo */
+                $repo = $this->app['storage']->getRepository($contenttype);
+
+                $total = 0;
+
+                $elements = $repo->findBy($filters, ["datecreated","DESC"], 999999, $keep);
+                if($elements){
+                    foreach($elements as $element){
+                        if ($repo->delete($element))
+                            $total++;
+                    }
+                }
+
+                $output->writeln($total." elements deleted");
             }
         }
 
@@ -117,7 +177,8 @@ class Importer {
 
         $format = Collection::get($source, "source.format", "rss2");
         $url = Collection::get($source, "source.url", false);
-        $formatClass = dirname(__NAMESPACE__)."\\Format\\".ucfirst($format);
+
+        $formatClass = $this->baseNS."\\Format\\".ucfirst($format);
 
         if(!class_exists($formatClass))
             throw new Exception("Unknown format '".$format."' specified");
@@ -152,7 +213,7 @@ class Importer {
 
         foreach($filters as $filter => $params){
 
-            $filterClass = dirname(__NAMESPACE__)."\\Filter\\".ucfirst($filter);
+            $filterClass = $this->baseNS."\\Filter\\".ucfirst($filter);
 
             if(!class_exists($filterClass))
                 throw new Exception("Unknown filter '".$filter."' specified");
@@ -169,6 +230,7 @@ class Importer {
     }
 
     protected function importContent($values, $taxonomies, $config){
+
         $identifierField = Collection::get($config, "identifier", "guid");
         $identifier = Collection::get($values, $identifierField, sha1( serialize($values) ) );
 
@@ -176,6 +238,7 @@ class Importer {
         $slugField = Collection::get($config, "slug", "title");
         $status = Collection::get($config, "status", "published");
 
+        /* @var Repository $repo */
         $repo = $this->app['storage']->getRepository($contenttype);
 
         /* @var Content $content */
