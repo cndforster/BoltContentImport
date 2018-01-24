@@ -8,7 +8,7 @@ use Topolis\Bolt\Extension\ContentImport\IFilter;
 
 class Ucwords implements IFilter {
 
-    public static function filter($input, $parameters, Application $app, $values){
+    public static function filter($input, $parameters, Application $app, $values, $source){
        return ucwords($input);
     }
 

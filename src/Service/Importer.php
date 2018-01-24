@@ -153,7 +153,7 @@ class Importer {
             $config = $config + self::$defaultField;
 
             $value = $this->extractValues($item, $channel, $config);
-            $value = $this->applyFilters($value, $config, $values);
+            $value = $this->applyFilters($value, $config, $values, $item);
 
             switch($mode){
                 case "add":
@@ -201,7 +201,7 @@ class Importer {
         return Collection::get($data, $config["source"], $config["default"]);
     }
 
-    protected function applyFilters($input, $config, $values){
+    protected function applyFilters($input, $config, $values, $item){
 
         $output = $input;
 
@@ -223,7 +223,7 @@ class Importer {
             if(!$Filter instanceof IFilter)
                 throw new Exception("Invalid format class '".$filter."' specified");
 
-            $output = $Filter->filter($output, $params, $this->app, $values);
+            $output = $Filter->filter($output, $params, $this->app, $values, $item);
         }
 
         return $output;
@@ -258,7 +258,7 @@ class Importer {
 
         /* @var Taxonomy $taxonomy */
         $taxonomy = $this->app['storage']->createCollection('Bolt\Storage\Entity\Taxonomy');
-        $taxonomy->setFromPost($taxonomies, $content);
+        $taxonomy->setFromPost(["taxonomy" => $taxonomies], $content);
         $content->setTaxonomy($taxonomy);
 
         $repo->save($content);

@@ -9,7 +9,7 @@ use Topolis\FunctionLibrary\Collection;
 
 class EntitiesDecode implements IFilter {
 
-    public static function filter($input, $parameters, Application $app, $values){
+    public static function filter($input, $parameters, Application $app, $values, $source){
         return html_entity_decode($input);
     }
 
