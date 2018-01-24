@@ -45,7 +45,7 @@ class Sections2Structured implements IFilter {
             return self::$parsers[$type];
 
 
-        $type = ucwords($type);
+        $type = ucwords($type, " -_");
         $type = str_replace("-","",$type);
 
         $classname = "Topolis\\Bolt\\Extension\\ContentImport\\Filter\\Sections\\".$type."Section";
