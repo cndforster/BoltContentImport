@@ -6,6 +6,12 @@ use Exception;
 
 class BaseFormat {
 
+    protected $config;
+
+    public function __construct(array $config){
+        $this->config = $config;
+    }
+
     /**
      * @param $url
      * @return mixed

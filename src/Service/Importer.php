@@ -177,6 +177,7 @@ class Importer {
 
         $format = Collection::get($source, "source.format", "rss2");
         $url = Collection::get($source, "source.url", false);
+        $options = Collection::get($source, "source.options", []);
 
         $formatClass = $this->baseNS."\\Format\\".ucfirst($format);
 
@@ -186,7 +187,7 @@ class Importer {
         if(!$url)
             throw new Exception("Invalid url '".$url."' specified");
 
-        $Format = new $formatClass();
+        $Format = new $formatClass($options, $this->app);
 
         if(!$Format instanceof IFormat)
             throw new Exception("Invalid format class '".$format."' specified");
