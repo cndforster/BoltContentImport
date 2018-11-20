@@ -12,12 +12,14 @@ class Viversum extends BaseFormat implements IFormat {
      * Viversum constructor.
      * @param Application $app
      */
-    public function __construct($options, Application $app){
-        $this->config = $options;
-        $this->app = $app;
+    public function __construct($config, Application $app){
+
+        parent::__construct($config,  $app);
+
         $ns = explode("\\", __NAMESPACE__);
         array_pop($ns);
         $this->baseNS = implode("\\", $ns);
+
     }
 
     public function parse($url){

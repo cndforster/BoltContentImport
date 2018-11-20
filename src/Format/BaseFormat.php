@@ -3,13 +3,15 @@
 namespace Topolis\Bolt\Extension\ContentImport\Format;
 
 use Exception;
+use Silex\Application;
 
 class BaseFormat {
 
     protected $config;
 
-    public function __construct(array $config){
+    public function __construct(array $config, Application $app){
         $this->config = $config;
+        $this->app = $app;
     }
 
     /**
