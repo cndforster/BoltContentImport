@@ -88,7 +88,8 @@ class Viversum extends BaseFormat implements IFormat {
                 'name' => $item['zodiacSign']['name'],
                 'sign' => $sign,
                 'section' => $section,
-                'date' => $date
+                'date' => $date,
+                'language' => 'de'
             ];
         }
 
